@@ -1,5 +1,6 @@
 import json
 import re
+import sys
 from enum import Enum
 
 import pandas as pd
@@ -122,7 +123,7 @@ async def get_historical_stock_prices(
         hist_data = hist_data.to_json(orient="records", date_format="iso")
         return hist_data
     except Exception as e:
-        print(f"Error: getting historical stock prices for {ticker}: {e}")
+        print(f"Error: getting historical stock prices for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting historical stock prices for {ticker}: {e}"
 
 
@@ -144,11 +145,11 @@ async def get_stock_info(ticker: str) -> str:
         info = company.info
         # Check for fundamental properties that valid tickers should have
         if not info or 'symbol' not in info or 'quoteType' not in info:
-            print(f"No stock info found for ticker {ticker}.")
+            print(f"No stock info found for ticker {ticker}.", file=sys.stderr)
             return f"No stock info found for ticker {ticker}."
         return json.dumps(info)
     except Exception as e:
-        print(f"Error: getting stock information for {ticker}: {e}")
+        print(f"Error: getting stock information for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting stock information for {ticker}: {e}"
 
 
@@ -173,7 +174,7 @@ async def get_yahoo_finance_news(ticker: str) -> str:
         # Get news directly (isin check is slow and unreliable)
         news_data = company.news
         if not news_data:
-            print(f"No news found for ticker {ticker}.")
+            print(f"No news found for ticker {ticker}.", file=sys.stderr)
             return f"No news found for ticker {ticker}."
 
         news_list = []
@@ -187,11 +188,11 @@ async def get_yahoo_finance_news(ticker: str) -> str:
                     f"Title: {title}\nSummary: {summary}\nDescription: {description}\nURL: {url}"
                 )
         if not news_list:
-            print(f"No news found for company that searched with {ticker} ticker.")
+            print(f"No news found for company that searched with {ticker} ticker.", file=sys.stderr)
             return f"No news found for company that searched with {ticker} ticker."
         return "\n\n".join(news_list)
     except Exception as e:
-        print(f"Error: getting news for {ticker}: {e}")
+        print(f"Error: getting news for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting news for {ticker}: {e}"
 
 
@@ -212,7 +213,7 @@ async def get_stock_actions(ticker: str) -> str:
         actions_df = actions_df.reset_index(names="Date")
         return actions_df.to_json(orient="records", date_format="iso")
     except Exception as e:
-        print(f"Error: getting stock actions for {ticker}: {e}")
+        print(f"Error: getting stock actions for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting stock actions for {ticker}: {e}"
 
 
@@ -248,7 +249,7 @@ async def get_financial_statement(ticker: str, financial_type: str) -> str:
             return f"Error: invalid financial type {financial_type}. Please use one of the following: {FinancialType.income_stmt}, {FinancialType.quarterly_income_stmt}, {FinancialType.balance_sheet}, {FinancialType.quarterly_balance_sheet}, {FinancialType.cashflow}, {FinancialType.quarterly_cashflow}."
 
         if financial_statement.empty:
-            print(f"No financial statement data found for ticker {ticker}.")
+            print(f"No financial statement data found for ticker {ticker}.", file=sys.stderr)
             return f"No financial statement data found for ticker {ticker}."
 
         # Create a list to store all the json objects
@@ -273,7 +274,7 @@ async def get_financial_statement(ticker: str, financial_type: str) -> str:
 
         return json.dumps(result)
     except Exception as e:
-        print(f"Error: getting financial statement for {ticker}: {e}")
+        print(f"Error: getting financial statement for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting financial statement for {ticker}: {e}"
 
 
@@ -308,7 +309,7 @@ async def get_holder_info(ticker: str, holder_type: str) -> str:
         else:
             return f"Error: invalid holder type {holder_type}. Please use one of the following: {HolderType.major_holders}, {HolderType.institutional_holders}, {HolderType.mutualfund_holders}, {HolderType.insider_transactions}, {HolderType.insider_purchases}, {HolderType.insider_roster_holders}."
     except Exception as e:
-        print(f"Error: getting holder info for {ticker}: {e}")
+        print(f"Error: getting holder info for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting holder info for {ticker}: {e}"
 
 
@@ -328,11 +329,11 @@ async def get_option_expiration_dates(ticker: str) -> str:
         # Get options directly (isin check is slow and unreliable)
         options = company.options
         if not options:
-            print(f"No options expiration dates found for ticker {ticker}.")
+            print(f"No options expiration dates found for ticker {ticker}.", file=sys.stderr)
             return f"No options expiration dates found for ticker {ticker}."
         return json.dumps(options)
     except Exception as e:
-        print(f"Error: getting option expiration dates for {ticker}: {e}")
+        print(f"Error: getting option expiration dates for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting option expiration dates for {ticker}: {e}"
 
 
@@ -498,7 +499,7 @@ async def get_option_chain(
 
         return chain.to_json(orient="records", date_format="iso")
     except Exception as e:
-        print(f"Error: getting option chain for {ticker}: {e}")
+        print(f"Error: getting option chain for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting option chain for {ticker}: {e}"
 
 
@@ -542,13 +543,13 @@ async def get_recommendations(ticker: str, recommendation_type: str, months_back
         else:
             return f"Error: invalid recommendation type {recommendation_type}. Please use one of the following: {RecommendationType.recommendations}, {RecommendationType.upgrades_downgrades}."
     except Exception as e:
-        print(f"Error: getting recommendations for {ticker}: {e}")
+        print(f"Error: getting recommendations for {ticker}: {e}", file=sys.stderr)
         return f"Error: getting recommendations for {ticker}: {e}"
 
 
 def main() -> None:
     # Initialize and run the server
-    print("Starting Yahoo Finance MCP server...")
+    print("Starting Yahoo Finance MCP server...", file=sys.stderr)
     yfinance_server.run(transport="stdio")
 
 

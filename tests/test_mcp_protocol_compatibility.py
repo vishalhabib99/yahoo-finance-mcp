@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -64,6 +65,8 @@ async def test_stdio_preserves_legacy_initialize_and_tool_schemas():
         sys.executable,
         str(REPOSITORY_ROOT / "server.py"),
         cwd=REPOSITORY_ROOT,
+        # Unbuffered like the Dockerfile, so a stray stdout write reaches the client right away
+        env={**os.environ, "PYTHONUNBUFFERED": "1"},
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
